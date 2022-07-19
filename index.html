@@ -1,36 +1,203 @@
 <html>
+<header><h1 style="text-align:center">2017 Automobile Fuel Efficiency</h1></header>
 <script src='https://d3js.org/d3.v5.min.js'></script>
-<style> path {fill: lightblue; stroke: black;} </style>
-<svg width=300 height=300>
+<style> 
+
+circle {stroke: black;} 
+
+div.tooltip {	
+    position: absolute;			
+    text-align: left;			
+    width: 180px;					
+    height: 75px;					
+    padding: 5px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+.images {
+  position: absolute;
+  top: 100px;
+  left: 1000px;
+}
+
+.images p {
+  position: absolute;
+  width: 100%;
+  text-align: left;
+  top: 175;
+  bottom: 0;
+  left: 0;
+}
+
+</style>
+<body onload='init()'>
+<div class="images">
+    <img id="charging_station" src="charging_station.jpg" alt="Charging Station" width="200" height="175" style="display: none">
+    <p id="charging_station_text" style="display: none;">Electric cars have no cylinders</p>
+    <img id="diesel_pump"src="diesel.jpg" alt="Diesel Pump" width="200" height="175" style="display: none">
+    <p id="diesel_pump_text" style="display: none;">Diesel is cleaner than gasoline</p>
+    <img id="gas_pump" src="gas_pump.jpg" alt="Diesel Pump" width="200" height="175" style="display: none">
+    <p id="gas_pump_text" style="display: none;">Gasoline is the most popular</p>
+</div>
+<svg width=1000 height=1000>
 </svg>
 <script>
-
-    var data = d3.csv('https://github.com/sbobo3/sbobo3.github.io/blob/dbf8971ff93d42375709ac7d7bf30c8b84b39217/covid_us_death_rate.csv');
-    var width = 300;
-    var height = 300;
-    var margin = 50;
+async function init() {
+    var data = await d3.csv('https://flunky.github.io/cars2017.csv');
+    var width = 1600;
+    var height = 800;
+    var margin = 200;
 
     var svg = d3.select("svg").attr("width",width).attr("height",height);
-    var xScale = d3.scaleTime().domain(d3.extent(data, function(d) { return d.Date; })).range([ 0, width ]);
-    var yScale = d3.scaleLinear().domain([0, d3.max(data, function(d) { return +d.Death_Rate; })]).range([ height, 0 ]);
+    var xScale = d3.scaleLog().domain([10,150]).range([0,500]);
+    var yScale = d3.scaleLog().domain([10,150]).range([500,0]);
  
 
-    var g = svg.append("g").attr("transform", "translate(" + 50 + "," + 50 + ")");
+    var g = svg.append("g").attr("transform", "translate(" + 200 + "," + 100 + ")");
 
-    svg.append("g").attr("transform","translate("+margin+","+margin+")")
-    .call(d3.axisLeft(yScale)); 
+    svg.append("g").attr("transform","translate("+margin+","+75+")")
+    .call(d3.axisLeft(yScale).tickValues([10,20,50,100]).tickFormat(d3.format("~s"))); 
 
-    svg.append("g").attr("transform", "translate("+margin+","+(height+margin-100)+")")
-    .call(d3.axisBottom(xScale));
+    svg.append("g").attr("transform", "translate("+margin+","+(height+margin-425)+")")
+    .call(d3.axisBottom(xScale).tickValues([10,20,50,100]).tickFormat(d3.format("~s")));
 
-    g.selectAll("path")
+    var div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+    svg.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", 520)
+        .attr("y", height - 175)
+        .text("Average City MPG");
+
+    svg.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("x", -250)
+        .attr("y", height - 665)
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .text("Average Highway MPG");
+
+    svg.append("circle").attr("cx",320).attr("cy",660).attr("r", 3).style("fill", "green")
+    svg.append("circle").attr("cx",400).attr("cy",660).attr("r", 3).style("fill", "red")
+    svg.append("circle").attr("cx",510).attr("cy",660).attr("r", 3).style("fill", "yellow")
+    svg.append("text").attr("x", 335).attr("y", 660).text("Diesel").style("font-size", "15px").attr("alignment-baseline","middle")
+    svg.append("text").attr("x", 425).attr("y", 660).text("Electricity").style("font-size", "15px").attr("alignment-baseline","middle")
+    svg.append("text").attr("x", 525).attr("y", 660).text("Gasoline").style("font-size", "15px").attr("alignment-baseline","middle")
+
+    g.selectAll("dot")
          .data(data)
-         .enter().append("path")
-         .attr("fill", "none")
-         .attr("stroke-width", 1.5)
-         .attr("d", d3.line().x(function(d) { return x(d.Date) }).y(function(d) { return y(d.Death_Rate) })
-        );
+         .enter().append("circle")
+         .transition().duration(500).delay(10).style("opacity", .9)
+         .attr("cx", function (d) { return xScale(d.AverageCityMPG) } )
+         .attr("cy", function (d) { return yScale(d.AverageHighwayMPG) } )
+         .attr("r", function (d) { return (3)})
+         .attr("class", function (d) { 
+            if(d.Fuel == "Electricity") {
+                return "electricity"
+            }
+            if(d.Fuel == "Diesel") {
+                return "diesel"
+            }
+            if(d.Fuel == "Gasoline") {
+                return "gasoline"
+            } 
+         })
+         .style("fill", function (d) { 
+            if(d.Fuel == "Electricity") {
+                return "red"
+            }
+            if(d.Fuel == "Diesel") {
+                return "green"
+            }
+            if(d.Fuel == "Gasoline")
+                return "yellow"
+         });
 
+         g.selectAll("circle")
+         .on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div	.html("Manufacturer: " + d.Make + "<br/>" + 
+                      "Fuel: " + d.Fuel + "<br/>" + 
+                      "Engine Cylinders: " + d.EngineCylinders + "<br/>" + 
+                      "Average City MPG: " + d.AverageCityMPG + "<br/>" + 
+                      "Average Highway MPG: " + d.AverageHighwayMPG)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            })					
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(1000)		
+                .style("opacity", 0);	
+        })
 
+        .on("click", function(d) {
+            var electricity_dots = document.querySelectorAll('.electricity');
+            var diesel_dots = document.querySelectorAll('.diesel');
+            var gasoline_dots = document.querySelectorAll('.gasoline');
+            if(d.Fuel == "Electricity") {
+                document.getElementById("charging_station").setAttribute("style", "display: inline-block");
+                document.getElementById("charging_station_text").setAttribute("style", "display: inline-block");
+                document.getElementById("diesel_pump").setAttribute("style", "display: none");
+                document.getElementById("diesel_pump_text").setAttribute("style", "display: none");
+                document.getElementById("gas_pump").setAttribute("style", "display: none");
+                document.getElementById("gas_pump_text").setAttribute("style", "display: none");
+                for (var i=0; i < electricity_dots.length; i++) {
+                    electricity_dots[i].setAttribute("style", "fill: red");
+                }
+                for (var i=0; i < diesel_dots.length; i++) {
+                    diesel_dots[i].setAttribute("style", "fill: lightgrey");
+                }
+                for (var i=0; i < gasoline_dots.length; i++) {
+                    gasoline_dots[i].setAttribute("style", "fill: lightgrey");
+                }
+            }
+            if(d.Fuel == "Diesel") {
+                document.getElementById("charging_station").setAttribute("style", "display: none");
+                document.getElementById("charging_station_text").setAttribute("style", "display: none");
+                document.getElementById("diesel_pump").setAttribute("style", "display: inline-block");
+                document.getElementById("diesel_pump_text").setAttribute("style", "display: inline-block");
+                document.getElementById("gas_pump").setAttribute("style", "display: none");
+                document.getElementById("gas_pump_text").setAttribute("style", "display: none");
+                for (var i=0; i < electricity_dots.length; i++) {
+                    electricity_dots[i].setAttribute("style", "fill: lightgrey");
+                }
+                for (var i=0; i < diesel_dots.length; i++) {
+                    diesel_dots[i].setAttribute("style", "fill: green");
+                }
+                for (var i=0; i < gasoline_dots.length; i++) {
+                    gasoline_dots[i].setAttribute("style", "fill: lightgrey");
+                }
+            }
+            if(d.Fuel == "Gasoline") {
+                document.getElementById("charging_station").setAttribute("style", "display: none");
+                document.getElementById("charging_station_text").setAttribute("style", "display: none");
+                document.getElementById("diesel_pump").setAttribute("style", "display: none");
+                document.getElementById("diesel_pump_text").setAttribute("style", "display: none");
+                document.getElementById("gas_pump").setAttribute("style", "display: inline-block");
+                document.getElementById("gas_pump_text").setAttribute("style", "display: inline-block");
+                for (var i=0; i < electricity_dots.length; i++) {
+                    electricity_dots[i].setAttribute("style", "fill: lightgrey");
+                }
+                for (var i=0; i < diesel_dots.length; i++) {
+                    diesel_dots[i].setAttribute("style", "fill: lightgrey");
+                }
+                for (var i=0; i < gasoline_dots.length; i++) {
+                    gasoline_dots[i].setAttribute("style", "fill: yellow");
+                }
+            }
+        })
+        
+}
 </script>
+</body>
 </html>
