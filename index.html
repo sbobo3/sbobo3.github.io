@@ -1,9 +1,13 @@
 <html>
-<header><h1 style="text-align:center">2017 Automobile Fuel Efficiency</h1></header>
+<header><h1 style="text-align:center; font-family: sans-serif;">2017 Automobile Fuel Efficiency</h1></header>
 <script src='https://d3js.org/d3.v5.min.js'></script>
 <style> 
 
 circle {stroke: black;} 
+
+* {
+    font-family: sans-serif;
+}
 
 div.tooltip {	
     position: absolute;			
@@ -31,17 +35,38 @@ div.tooltip {
   top: 175;
   bottom: 0;
   left: 0;
+  font-family: sans-serif;
+}
+
+.helptext {
+  position: absolute;
+  text-align: left;
+  inline-size: 250px; 
+  top: 500;
+  left: 1000;
+  font: 13px sans-serif;	
+  color:gray;
+
 }
 
 </style>
 <body onload='init()'>
 <div class="images">
     <img id="charging_station" src="charging_station.jpg" alt="Charging Station" width="200" height="175" style="display: none">
-    <p id="charging_station_text" style="display: none;">Electric cars have no cylinders</p>
+    <p id="charging_station_text" style="display: none;">Sales of electric cars increased 78% in 2017 to 668,000 units worldwide.</p>
     <img id="diesel_pump"src="diesel.jpg" alt="Diesel Pump" width="200" height="175" style="display: none">
-    <p id="diesel_pump_text" style="display: none;">Diesel is cleaner than gasoline</p>
+    <p id="diesel_pump_text" style="display: none;">Sales of diesel-powered passenger cars were down by 3.7% to 13.94 million worldwide.</p>
     <img id="gas_pump" src="gas_pump.jpg" alt="Diesel Pump" width="200" height="175" style="display: none">
-    <p id="gas_pump_text" style="display: none;">Gasoline is the most popular</p>
+    <p id="gas_pump_text" style="display: none;">Sales of gasoline cars increased 3% to 62.39 million.</p>
+</div>
+<div class="helptext">
+    <p>
+        Click on any of the dots in the scatterplot to get more information about worldwide sales by fuel type.
+    </p>
+
+    <p>
+        Hover over the dot to see the specific vehicle's information.
+    </p>
 </div>
 <svg width=1000 height=1000>
 </svg>
@@ -195,8 +220,7 @@ async function init() {
                     gasoline_dots[i].setAttribute("style", "fill: yellow");
                 }
             }
-        })
-        
+        })        
 }
 </script>
 </body>
