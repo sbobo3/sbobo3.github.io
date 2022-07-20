@@ -53,11 +53,17 @@ div.tooltip {
 <body onload='init()'>
 <div class="images">
     <img id="charging_station" src="charging_station.jpg" alt="Charging Station" width="200" height="175" style="display: none">
-    <p id="charging_station_text" style="display: none;">Sales of electric cars increased 78% in 2017 to 668,000 units worldwide.</p>
+    <p id="charging_station_text" style="display: none;">
+        For electric-powered cars in 2017, the average city MPG was ~199 MPG and the average highway MPG was ~102 MPG.
+    </p>
     <img id="diesel_pump"src="diesel.jpg" alt="Diesel Pump" width="200" height="175" style="display: none">
-    <p id="diesel_pump_text" style="display: none;">Sales of diesel-powered passenger cars were down by 3.7% to 13.94 million worldwide.</p>
+    <p id="diesel_pump_text" style="display: none;">
+        For diesel-powered cars in 2017, the average city MPG was ~25 MPG and the average highway MPG was ~33 MPG.
+    </p>
     <img id="gas_pump" src="gas_pump.jpg" alt="Diesel Pump" width="200" height="175" style="display: none">
-    <p id="gas_pump_text" style="display: none;">Sales of gasoline cars increased 3% to 62.39 million.</p>
+    <p id="gas_pump_text" style="display: none;">
+        For gasoline-powered cars in 2017, the average city MPG was ~20 MPG and the average highway MPG was ~27 MPG.
+    </p>
 </div>
 <div class="helptext">
     <p>
@@ -220,7 +226,8 @@ async function init() {
                     gasoline_dots[i].setAttribute("style", "fill: yellow");
                 }
             }
-        })        
+        });
+        
 }
 </script>
 </body>
